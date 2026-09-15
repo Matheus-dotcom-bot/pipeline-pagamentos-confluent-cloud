@@ -1,5 +1,8 @@
 # Pipeline de Pagamentos em Tempo Real — Confluent Cloud
 
+**Autoria e créditos:** Matheus B. Pedroso  
+**Autor:** Matheus B. Pedroso
+
 Pipeline de engenharia de dados para processamento de pagamentos em tempo real, usando PostgreSQL como fonte transacional, CDC, Apache Kafka/Confluent Cloud e Flink SQL para enriquecimento e identificação de transações suspeitas.
 
 ## Objetivo
@@ -135,6 +138,12 @@ As credenciais devem ser fornecidas por variáveis de ambiente ou secrets do amb
 ## Evidências
 
 A pasta `evidence/` deve receber somente evidências reais de execução, como logs, capturas ou resultados exportados. Arquivos de evidência não devem ser usados para simular uma execução que não ocorreu.
+
+## Créditos e autoria
+
+**Projeto, arquitetura, documentação e implementação:** Matheus B. Pedroso.
+
+Este repositório registra a autoria do projeto e mantém os créditos no README como parte da documentação oficial da implementação.
 
 ## Status
 
