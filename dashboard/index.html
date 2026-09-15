@@ -1,74 +1,47 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Dashboard visual do pipeline de pagamentos em tempo real com CDC, Kafka, Flink e Confluent Cloud.">
-  <title>Payment Stream Control</title>
-  <style>
-    :root{--bg:#071018;--panel:#0c1722;--panel2:#101e2b;--line:#1c3345;--text:#e8f1f7;--muted:#8195a5;--accent:#48d6a0;--warn:#ffc857;--danger:#ff6b7a;--blue:#55a9ff;--shadow:0 18px 50px rgba(0,0,0,.28)}
-    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#12334a 0,transparent 35%),var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    button{font:inherit;color:inherit}.app{max-width:1500px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--blue));color:#041016;font-weight:900}.brand h1{font-size:18px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.status{display:flex;align-items:center;gap:8px;color:#b9cbd6}.dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
-    .actions{display:flex;gap:8px}.btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 13px;cursor:pointer}.btn:hover{border-color:#31566e}.btn.primary{background:#123a35;border-color:#246c59;color:#bff5df}
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:linear-gradient(180deg,rgba(16,30,43,.94),rgba(9,21,31,.94));border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.kpi{padding:18px}.kpi .label{color:var(--muted);font-size:12px}.kpi .value{font-size:27px;font-weight:750;margin:5px 0}.trend{font-size:12px;color:var(--accent)}
-    .section{margin-top:14px;padding:18px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.section-title h2{font-size:14px;margin:0}.section-title span{font-size:11px;color:var(--muted)}
-    .pipeline{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr 28px 1fr 28px 1fr;align-items:center;gap:7px}.node{min-height:105px;padding:15px;border:1px solid #234053;border-radius:12px;background:#0a151f}.node .tag{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.node strong{display:block;margin:6px 0;font-size:15px}.node small{color:#9bb0be}.arrow{text-align:center;color:var(--accent);font-size:20px}.node.live{border-color:#26715d;box-shadow:inset 0 0 25px rgba(72,214,160,.05)}
-    .two{display:grid;grid-template-columns:1.35fr .65fr;gap:14px}.chart{height:220px;display:flex;align-items:end;gap:5px;padding:18px 6px 5px}.bar{flex:1;min-width:3px;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--blue),#24577e);opacity:.85}.chart-label{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;padding:0 7px 3px}
-    .alerts{display:grid;gap:9px}.alert{padding:12px;border:1px solid var(--line);border-radius:10px;background:#0a151f}.alert-row{display:flex;justify-content:space-between;gap:10px}.pill{font-size:10px;border-radius:999px;padding:3px 8px}.pill.danger{background:#3b1820;color:#ff9da8}.pill.warn{background:#3a2b12;color:#ffd978}.pill.ok{background:#10352c;color:#91efd0}.muted{color:var(--muted)}
-    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #172c3a}th{color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase}td{font-size:12px}.amount{font-variant-numeric:tabular-nums}.risk-high{color:var(--danger)}.risk-medium{color:var(--warn)}.risk-low{color:var(--accent)}
-    .footer{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin:16px 2px}.range{width:100%;accent-color:var(--accent)}
-    @media(max-width:1050px){.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.pipeline{grid-template-columns:1fr;}.arrow{transform:rotate(90deg);height:14px}.node{min-height:0}}
-    @media(max-width:620px){.app{padding:14px}.top{align-items:flex-start;flex-direction:column}.actions{width:100%}.btn{flex:1}.grid{grid-template-columns:1fr 1fr}.kpi .value{font-size:22px}}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="IDE visual para testes do pipeline de pagamentos com CDC, Kafka, Flink e Confluent Cloud.">
+<title>Payment Stream IDE</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="app">
-  <header class="top">
-    <div class="brand"><div class="logo">PS</div><div><h1>Payment Stream Control</h1><p>Confluent Cloud · CDC · Flink SQL · Observability</p></div></div>
-    <div class="actions"><div class="status"><span class="dot"></span> Pipeline online</div><button class="btn" id="pause">Pausar simulação</button><button class="btn primary" id="burst">Gerar carga</button></div>
-  </header>
-
-  <section class="grid">
-    <div class="card kpi"><div class="label">Eventos processados</div><div class="value" id="events">128.430</div><div class="trend">↑ 8,4% / 5 min</div></div>
-    <div class="card kpi"><div class="label">Throughput</div><div class="value"><span id="throughput">428</span> msg/s</div><div class="trend">estável</div></div>
-    <div class="card kpi"><div class="label">Latência p95</div><div class="value"><span id="latency">84</span> ms</div><div class="trend">↓ 12 ms</div></div>
-    <div class="card kpi"><div class="label">Transações suspeitas</div><div class="value" id="suspicious">37</div><div class="trend" style="color:var(--warn)">0,029% do fluxo</div></div>
-  </section>
-
-  <section class="card section">
-    <div class="section-title"><h2>Fluxo de processamento</h2><span>arquitetura lógica do projeto</span></div>
-    <div class="pipeline">
-      <div class="node live"><span class="tag">Source</span><strong>PostgreSQL</strong><small>pagamentos transacionais</small></div><div class="arrow">›</div>
-      <div class="node live"><span class="tag">CDC</span><strong>Debezium</strong><small>captura de alterações</small></div><div class="arrow">›</div>
-      <div class="node live"><span class="tag">Streaming</span><strong>Kafka / Confluent</strong><small>payments.raw</small></div><div class="arrow">›</div>
-      <div class="node live"><span class="tag">Processing</span><strong>Flink SQL</strong><small>enriquecimento + risco</small></div><div class="arrow">›</div>
-      <div class="node live"><span class="tag">Output</span><strong>Consumer</strong><small>processed / suspicious</small></div>
-    </div>
-  </section>
-
-  <div class="two">
-    <section class="card section"><div class="section-title"><h2>Throughput em tempo real</h2><span>últimos 60 intervalos</span></div><div class="chart" id="chart"></div><div class="chart-label"><span>60s atrás</span><span>agora</span></div></section>
-    <section class="card section"><div class="section-title"><h2>Alertas de risco</h2><span id="alertCount">3 ativos</span></div><div class="alerts" id="alerts"></div></section>
-  </div>
-
-  <section class="card section">
-    <div class="section-title"><h2>Eventos recentes</h2><span>dados sintéticos para demonstração</span></div>
-    <table><thead><tr><th>Payment ID</th><th>Valor</th><th>Método</th><th>Status</th><th>Risco</th><th>Processado</th></tr></thead><tbody id="rows"></tbody></table>
-  </section>
-  <footer class="footer"><span>Visual experimental · sem credenciais reais</span><span>Matheus B. Pedroso · pipeline-pagamentos-confluent-cloud</span></footer>
+<header class="top">
+<div class="brand"><div class="logo">PS</div><div><h1>Payment Stream IDE</h1><p>Confluent Cloud · CDC · Kafka · Flink SQL · Observability</p></div></div>
+<div class="actions"><div class="status"><span class="dot"></span> Pipeline online</div><button class="btn" id="pause">Pausar simulação</button><button class="btn" id="openPayload">Editor JSON</button><button class="btn primary" id="burst">Gerar carga</button></div>
+</header>
+<section class="grid">
+<div class="card kpi"><div class="label">Eventos processados</div><div class="value" id="events">128.430</div><div class="trend">↑ fluxo sintético</div></div>
+<div class="card kpi"><div class="label">Throughput</div><div class="value"><span id="throughput">428</span> msg/s</div><div class="trend">streaming</div></div>
+<div class="card kpi"><div class="label">Latência p95</div><div class="value"><span id="latency">84</span> ms</div><div class="trend">processamento</div></div>
+<div class="card kpi"><div class="label">Transações suspeitas</div><div class="value" id="suspicious">37</div><div class="trend" style="color:var(--warn)">detecção de risco</div></div>
+</section>
+<section class="card section">
+<div class="section-title"><h2>Fluxo de processamento</h2><span>arquitetura lógica</span></div>
+<div class="pipeline">
+<div class="node live"><span class="tag">Source</span><strong>PostgreSQL</strong><small>pagamentos transacionais</small></div><div class="arrow">›</div>
+<div class="node live"><span class="tag">CDC</span><strong>Debezium</strong><small>captura de alterações</small></div><div class="arrow">›</div>
+<div class="node live"><span class="tag">Streaming</span><strong>Kafka / Confluent</strong><small>payments.raw</small></div><div class="arrow">›</div>
+<div class="node live"><span class="tag">Processing</span><strong>Flink SQL</strong><small>enriquecimento + risco</small></div><div class="arrow">›</div>
+<div class="node live"><span class="tag">Output</span><strong>Consumer</strong><small>processed / suspicious</small></div>
+</div></section>
+<div class="two">
+<section class="card section"><div class="section-title"><h2>Throughput em tempo real</h2><span>últimos 60 intervalos</span></div><div class="chart" id="chart"></div><div class="chart-label"><span>60s atrás</span><span>agora</span></div></section>
+<section class="card section"><div class="section-title"><h2>Alertas de risco</h2><span>regras sintéticas</span></div><div class="alerts" id="alerts"></div></section>
 </div>
-<script>
-  const $=s=>document.querySelector(s); let running=true, burst=1, total=128430;
-  const methods=['PIX','CREDIT_CARD','DEBIT_CARD','BANK_TRANSFER']; const statuses=['approved','approved','approved','pending'];
-  function money(){return (Math.random()*4800+35).toFixed(2)}
-  function renderRows(){
-    const rows=Array.from({length:7},(_,i)=>{const risk=Math.random()<.12?'HIGH':Math.random()<.3?'MEDIUM':'LOW';return `<tr><td>pay_${String(98421-i).padStart(6,'0')}</td><td class="amount">R$ ${money()}</td><td>${methods[i%methods.length]}</td><td>${statuses[i%statuses.length]}</td><td class="risk-${risk.toLowerCase()}">${risk}</td><td>${(Math.random()*900+20).toFixed(0)} ms</td></tr>`}).join('');$('#rows').innerHTML=rows;
-  }
-  function renderAlerts(){const data=[['HIGH','Valor acima do limite','pay_098421'],['MEDIUM','Repetição em janela curta','pay_098417'],['HIGH','Frequência incompatível','pay_098409']];$('#alerts').innerHTML=data.map(x=>`<div class="alert"><div class="alert-row"><strong>${x[1]}</strong><span class="pill ${x[0]==='HIGH'?'danger':'warn'}">${x[0]}</span></div><div class="muted" style="margin-top:4px">${x[2]} · regra de suspeita</div></div>`).join('')}
-  function renderChart(){const c=$('#chart');c.innerHTML='';for(let i=0;i<60;i++){const b=document.createElement('div');b.className='bar';b.style.height=(22+Math.random()*75)+'%';c.appendChild(b)}}
-  function tick(){if(running){const t=Math.round(380+Math.random()*110)*burst; total+=t;$('#events').textContent=total.toLocaleString('pt-BR');$('#throughput').textContent=t.toLocaleString('pt-BR');$('#latency').textContent=Math.round(62+Math.random()*50);if(Math.random()<.25)$('#suspicious').textContent=+$('#suspicious').textContent+1;renderChart();renderRows()}}
-  $('#pause').onclick=()=>{running=!running;$('#pause').textContent=running?'Pausar simulação':'Retomar simulação';};$('#burst').onclick=()=>{burst=burst===1?4:1;$('#burst').textContent=burst===1?'Gerar carga':'Carga alta ativa'};
-  renderRows();renderAlerts();renderChart();setInterval(tick,1800);
-</script>
+<section class="card section"><div class="section-title"><h2>Eventos recentes</h2><span>simulação local no navegador</span></div><table><thead><tr><th>Payment ID</th><th>Valor</th><th>Método</th><th>Status</th><th>Risco</th><th>Processado</th></tr></thead><tbody id="rows"></tbody></table></section>
+<footer class="footer"><span>IDE experimental · nenhuma credencial real</span><span>pipeline-pagamentos-confluent-cloud</span></footer>
+</div>
+<div class="modal" id="payloadModal"><div class="modal-card"><div class="modal-head"><h2>Event Payload</h2><button class="close" id="closePayload">×</button></div><p class="muted">Envie um evento sintético para testar a interface antes da integração com o backend.</p><textarea id="payload">{
+  "payment_id": "pay_test_001",
+  "amount": 1250.50,
+  "payment_method": "PIX",
+  "status": "APPROVED",
+  "risk": "LOW"
+}</textarea><div class="error" id="payloadError"></div><div class="modal-actions"><button class="btn" id="closePayload2">Cancelar</button><button class="btn primary" id="sendPayload">Enviar evento</button></div></div></div>
+<script src="app.js"></script>
+<script>document.querySelector('#closePayload2').onclick=()=>document.querySelector('#closePayload').click();</script>
 </body>
 </html>
