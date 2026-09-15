@@ -1,0 +1,23 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required files
+        run: bash scripts/validate.sh
+
+      - name: Validate JSON
+        run: python -m json.tool cdc/connector-config.json >/dev/null
+
+      - name: Compile Python consumer
+        run: python -m py_compile consumer/consumer.py
