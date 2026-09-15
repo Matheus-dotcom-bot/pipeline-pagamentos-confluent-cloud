@@ -1,0 +1,17 @@
+confluent_cloud_api_key    = ""
+confluent_cloud_api_secret = ""
+
+confluent_environment_id = "env-xxxxxxxx"
+kafka_cluster_id         = "lkc-xxxxxxxx"
+kafka_rest_endpoint      = "https://pkc-xxxxxxxx.region.provider.confluent.cloud:443"
+kafka_api_key            = ""
+kafka_api_secret         = ""
+
+partitions = 3
+
+# Keep false until the Flink compute pool is intentionally provisioned.
+create_flink_compute_pool = false
+flink_compute_pool_name   = "payments-streaming-pool"
+flink_cloud               = "AWS"
+flink_region              = "us-east-1"
+flink_max_cfu             = 5
