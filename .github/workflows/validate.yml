@@ -16,16 +16,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
-      - name: Validate required files
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && pip install -r consumer/requirements.txt
+
+      - name: Validate required files and contracts
         run: bash scripts/validate.sh
 
-      - name: Validate JSON
-        run: python -m json.tool cdc/connector-config.json >/dev/null
-
-      - name: Compile Python consumer
-        run: python -m py_compile consumer/consumer.py
+      - name: Run unit tests
+        run: pytest -q
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -34,7 +34,7 @@ jobs:
         working-directory: terraform
         run: terraform fmt -check -recursive
 
-      - name: Terraform init
+      - name: Terraform init without backend
         working-directory: terraform
         run: terraform init -backend=false -input=false
 
