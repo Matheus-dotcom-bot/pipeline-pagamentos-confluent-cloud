@@ -49,9 +49,9 @@ postgres/       esquema e dados sintéticos
 cdc/            configuração do conector CDC
 flink/          consultas SQL de streaming
 consumer/       consumidor Python
-terraform/      infraestrutura opcional como código
+terraform/      infraestrutura como código para Confluent Cloud
 scripts/        validações operacionais
-evidence/       evidências de execução
+evidence/       evidências reais de execução
 ```
 
 ## Modelo de evento
@@ -67,7 +67,7 @@ Cada pagamento utiliza, como contrato mínimo, campos como:
 - `created_at`
 - `updated_at`
 
-O pipeline também pode produzir atributos derivados, como valor normalizado, faixa de risco e motivo da suspeita.
+O pipeline também pode produzir atributos derivados, como faixa de risco e motivo da suspeita.
 
 ## Regra inicial de suspeita
 
@@ -77,7 +77,7 @@ A implementação de referência considera uma transação suspeita quando uma r
 - repetição de pagamentos em uma janela curta;
 - combinação de valor e frequência incompatível com o perfil esperado.
 
-As regras são deliberadamente parametrizadas para que possam ser substituídas por regras reais do desafio sem alterar a arquitetura.
+As regras podem ser substituídas pelas regras definitivas do desafio sem alterar a arquitetura.
 
 ## Execução local
 
@@ -95,6 +95,31 @@ pip install -r consumer/requirements.txt
 
 Configure as variáveis de ambiente a partir de `.env.example` antes de conectar o projeto ao Confluent Cloud.
 
+## Terraform + Confluent Cloud
+
+A pasta `terraform/` contém a infraestrutura como código para os três tópicos do pipeline:
+
+- `payments.raw`
+- `payments.processed`
+- `payments.suspicious`
+
+Também existe suporte opcional à criação de um Flink Compute Pool. **A opção vem desativada por padrão** para impedir provisionamento involuntário de capacidade.
+
+Fluxo:
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+# preencher os valores localmente
+terraform init
+terraform fmt -check
+terraform validate
+terraform plan -out=tfplan
+terraform apply tfplan
+```
+
+Nunca faça commit de `terraform.tfvars`, credenciais ou `terraform.tfstate`.
+
 ## Confluent Cloud
 
 O projeto foi preparado para utilizar:
@@ -105,7 +130,7 @@ O projeto foi preparado para utilizar:
 - conexão segura por SASL/SSL;
 - tópicos separados para entrada, processamento e suspeitas.
 
-**Nenhum segredo deve ser versionado.** Chaves, senhas e certificados devem permanecer em variáveis de ambiente ou no mecanismo de secrets do ambiente de execução.
+As credenciais devem ser fornecidas por variáveis de ambiente ou secrets do ambiente de execução. Nenhuma chave real deve ser versionada.
 
 ## Evidências
 
@@ -113,7 +138,7 @@ A pasta `evidence/` deve receber somente evidências reais de execução, como l
 
 ## Status
 
-**Em implementação.** A estrutura inicial foi criada para evoluir da infraestrutura local para a integração com Confluent Cloud.
+**Infraestrutura base implementada.** O próximo estágio é conectar uma instância real do Confluent Cloud, validar os tópicos, configurar o CDC e executar os statements Flink com evidências reais.
 
 ## Licença
 
