@@ -1,0 +1,34 @@
+name: Confluent Cloud Plan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      TF_VAR_confluent_cloud_api_key: ${{ secrets.CONFLUENT_CLOUD_API_KEY }}
+      TF_VAR_confluent_cloud_api_secret: ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
+      TF_VAR_confluent_environment_id: ${{ secrets.CONFLUENT_ENVIRONMENT_ID }}
+      TF_VAR_kafka_cluster_id: ${{ secrets.KAFKA_CLUSTER_ID }}
+      TF_VAR_kafka_rest_endpoint: ${{ secrets.KAFKA_REST_ENDPOINT }}
+      TF_VAR_kafka_api_key: ${{ secrets.KAFKA_API_KEY }}
+      TF_VAR_kafka_api_secret: ${{ secrets.KAFKA_API_SECRET }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate -no-color
+
+      - name: Terraform plan
+        run: terraform plan -input=false -no-color
