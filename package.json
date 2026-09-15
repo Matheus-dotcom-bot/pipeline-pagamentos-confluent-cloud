@@ -1,0 +1,11 @@
+{
+  "name": "pipeline-pagamentos-confluent-cloud",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "echo 'Static dashboard + Vercel Node.js Functions'"
+  }
+}
