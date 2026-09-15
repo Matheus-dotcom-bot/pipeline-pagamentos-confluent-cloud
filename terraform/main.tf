@@ -19,9 +19,9 @@ resource "confluent_kafka_topic" "payments_raw" {
     id = var.kafka_cluster_id
   }
 
-  topic_name     = "payments.raw"
+  topic_name       = "payments.raw"
   partitions_count = var.partitions
-  rest_endpoint  = var.kafka_rest_endpoint
+  rest_endpoint    = var.kafka_rest_endpoint
 
   credentials {
     key    = var.kafka_api_key
@@ -34,9 +34,9 @@ resource "confluent_kafka_topic" "payments_processed" {
     id = var.kafka_cluster_id
   }
 
-  topic_name     = "payments.processed"
+  topic_name       = "payments.processed"
   partitions_count = var.partitions
-  rest_endpoint  = var.kafka_rest_endpoint
+  rest_endpoint    = var.kafka_rest_endpoint
 
   credentials {
     key    = var.kafka_api_key
@@ -49,9 +49,9 @@ resource "confluent_kafka_topic" "payments_suspicious" {
     id = var.kafka_cluster_id
   }
 
-  topic_name     = "payments.suspicious"
+  topic_name       = "payments.suspicious"
   partitions_count = var.partitions
-  rest_endpoint  = var.kafka_rest_endpoint
+  rest_endpoint    = var.kafka_rest_endpoint
 
   credentials {
     key    = var.kafka_api_key
